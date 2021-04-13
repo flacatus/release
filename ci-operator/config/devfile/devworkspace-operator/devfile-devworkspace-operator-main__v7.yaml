@@ -18,15 +18,19 @@ resources:
     requests:
       cpu: 100m
       memory: 200Mi
-tag_specification:
-  name: "4.7"
-  namespace: ocp
+releases:
+  latest:
+    release:
+      architecture: amd64
+      channel: stable
+      version: "4.7"
 tests:
 - as: devworkspace-happy-path
   steps:
     cluster_profile: aws
     test:
     - as: devworkspace-happy-path
+      cli: latest
       commands: |
         echo -e "[INFO] Test script content:"
         cat .ci/oci-devworkspace-happy-path.sh
@@ -34,6 +38,22 @@ tests:
       dependencies:
       - env: CI_CHE_OPERATOR_IMAGE
         name: che-operator-image
+      from: src
+      resources:
+        requests:
+          cpu: 100m
+          memory: 200Mi
+    workflow: ipi-aws
+- as: devworkspaces-operator-e2e
+  steps:
+    cluster_profile: aws
+    test:
+    - as: devworkspaces-operator-e2e
+      cli: latest
+      commands: /bin/bash .ci/openshift_e2e.sh
+      dependencies:
+      - env: DEVWORKSPACE_OPERATOR
+        name: devworkspace-operator
       from: src
       resources:
         requests:
